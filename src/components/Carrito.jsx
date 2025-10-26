@@ -1,5 +1,5 @@
-import { useContext } from 'react';
-import { CarritoContext } from '../context/CarritoContext';
+import React, { useContext } from 'react';
+import { CarritoContext } from '../context/CarritoContext.jsx';
 import { useNavigate } from 'react-router-dom';
 
 const Carrito = ({ usuario }) => {
