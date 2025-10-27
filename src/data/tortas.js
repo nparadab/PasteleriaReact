@@ -9,21 +9,21 @@ const tortas = [
   {
     nombre: 'Torta Frutilla',
     precio: 10000,
-    forma: 'Cuadrada',
+    forma: 'Redonda',
     tamaño: 'Mediana',
     imagen: '/imagenes/frutilla.png'
   },
   {
     nombre: 'Torta Vainilla',
     precio: 9500,
-    forma: 'Redonda',
+    forma: 'Cuadrada',
     tamaño: 'Pequeña',
     imagen: '/imagenes/vainilla.png'
   },
   {
     nombre: 'Torta Piña',
     precio: 8500,
-    forma: 'Cuadrada',
+    forma: 'Redonda',
     tamaño: 'Mediana',
     imagen: '/imagenes/piña.png'
   }
