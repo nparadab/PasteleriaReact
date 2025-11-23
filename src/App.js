@@ -10,14 +10,15 @@ import Envios from './components/Envios';
 import Admin from './components/Admin';
 import Registro from './components/Registro';
 import Promociones from './components/Promociones';
-import RutaPrivada from './components/RutaPrivada'; // 🔒 importar ruta protegida
+import RutaPrivada from './components/RutaPrivada';
+import Usuarios from './components/Usuarios';
+import Perfil from './components/Perfil';
 import './styles/style.css';
 
 function App() {
   const [usuario, setUsuario] = useState('');
   const [esAdmin, setEsAdmin] = useState(false);
 
-  // ✅ Restaurar sesión desde localStorage
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -46,6 +47,7 @@ function App() {
         <Route path="/login" element={<Login setUsuario={setUsuario} setEsAdmin={setEsAdmin} />} />
         <Route path="/catalogo" element={<Catalogo usuario={usuario} />} />
         <Route path="/carrito" element={<Carrito usuario={usuario} />} />
+        <Route path="/promociones" element={<Promociones />} />
 
         {/* 🔒 rutas protegidas */}
         <Route
@@ -72,8 +74,22 @@ function App() {
             </RutaPrivada>
           }
         />
-
-        <Route path="/promociones" element={<Promociones />} />
+        <Route
+          path="/usuarios"
+          element={
+            <RutaPrivada rol="ADMIN">
+              <Usuarios />
+            </RutaPrivada>
+          }
+        />
+        <Route
+          path="/perfil"
+          element={
+            <RutaPrivada rol="ADMIN">
+              <Perfil usuario={usuario} />
+            </RutaPrivada>
+          }
+        />
       </Routes>
     </>
   );

@@ -4,14 +4,18 @@ const cliente = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
 });
 
-// ✅ No enviar token en rutas públicas (register y login)
+// ✅ Enviar token en todas las rutas protegidas, excepto login y register
 cliente.interceptors.request.use(config => {
-  if (!config.url.includes('/api/auth')) {
+  const esRutaPublica =
+    config.url.includes('/api/auth/login') || config.url.includes('/api/auth/register');
+
+  if (!esRutaPublica) {
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
   }
+
   return config;
 });
 

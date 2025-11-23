@@ -5,17 +5,18 @@ export default function Usuarios() {
   const [usuarios, setUsuarios] = useState([]);
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [rol, setRol] = useState('CLIENTE');
-  const [editando, setEditando] = useState(null);
+  const [editandoId, setEditandoId] = useState(null);
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
-  // Cargar usuarios al iniciar
   useEffect(() => {
     obtenerUsuarios();
   }, []);
 
   const obtenerUsuarios = async () => {
     try {
-      const res = await cliente.get('/api/usuarios');
+      const res = await cliente.get('/api/auth/usuarios');
       setUsuarios(res.data);
     } catch (error) {
       console.error('Error al obtener usuarios', error);
@@ -25,23 +26,26 @@ export default function Usuarios() {
   const guardarUsuario = async (e) => {
     e.preventDefault();
     try {
-      if (editando) {
-        await cliente.put(`/api/usuarios/${editando}`, {
+      if (editandoId) {
+        await cliente.put(`/api/auth/usuarios/${editandoId}`, {
           nombre,
           email,
           rol
         });
       } else {
-        await cliente.post('/api/usuarios', {
+        await cliente.post('/api/auth/register', {
           nombre,
           email,
+          password,
           rol
         });
       }
       setNombre('');
       setEmail('');
+      setPassword('');
       setRol('CLIENTE');
-      setEditando(null);
+      setEditandoId(null);
+      setMostrarFormulario(false);
       obtenerUsuarios();
     } catch (error) {
       console.error('Error al guardar usuario', error);
@@ -52,12 +56,13 @@ export default function Usuarios() {
     setNombre(usuario.nombre);
     setEmail(usuario.email);
     setRol(usuario.rol);
-    setEditando(usuario.id);
+    setEditandoId(usuario.id);
+    setMostrarFormulario(true);
   };
 
   const eliminarUsuario = async (id) => {
     try {
-      await cliente.delete(`/api/usuarios/${id}`);
+      await cliente.delete(`/api/auth/usuarios/${id}`);
       obtenerUsuarios();
     } catch (error) {
       console.error('Error al eliminar usuario', error);
@@ -65,38 +70,97 @@ export default function Usuarios() {
   };
 
   return (
-    <div className="usuarios-container">
-      <h2>Gestión de Usuarios</h2>
+    <div className="container">
+      <h2 className="tituloPastel">Gestión de Usuarios</h2>
 
-      <form onSubmit={guardarUsuario} className="form-usuario">
-        <input
-          type="text"
-          placeholder="Nombre"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-        />
-        <input
-          type="email"
-          placeholder="Correo electrónico"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <select value={rol} onChange={(e) => setRol(e.target.value)}>
-          <option value="CLIENTE">Cliente</option>
-          <option value="ADMIN">Administrador</option>
-        </select>
-        <button type="submit">{editando ? 'Actualizar' : 'Agregar'}</button>
-      </form>
+      <table className="tablaPedidos">
+        <thead>
+          <tr>
+            <th>✔</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {usuarios.map((u) => (
+            <tr key={u.id}>
+              <td><input type="checkbox" /></td>
+              <td>{u.nombre}</td>
+              <td>{u.email}</td>
+              <td>{u.rol}</td>
+              <td>
+                <button onClick={() => editarUsuario(u)} className="boton-catalogo">Editar</button>
+                <button onClick={() => eliminarUsuario(u.id)} className="boton-catalogo">Eliminar</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
-      <ul className="lista-usuarios">
-        {usuarios.map((u) => (
-          <li key={u.id}>
-            <strong>{u.nombre}</strong> - {u.email} ({u.rol})
-            <button onClick={() => editarUsuario(u)}>Editar</button>
-            <button onClick={() => eliminarUsuario(u.id)}>Eliminar</button>
-          </li>
-        ))}
-      </ul>
+      <div style={{ marginTop: '30px' }}>
+        <button
+          onClick={() => {
+            setMostrarFormulario(!mostrarFormulario);
+            setEditandoId(null);
+            setNombre('');
+            setEmail('');
+            setPassword('');
+            setRol('CLIENTE');
+          }}
+          className="boton-catalogo"
+        >
+          {mostrarFormulario ? 'Cerrar formulario' : 'Agregar usuario'}
+        </button>
+      </div>
+
+      {mostrarFormulario && (
+        <form onSubmit={guardarUsuario} className="form-login" style={{ marginTop: '20px' }}>
+          <div className="campo-registro">
+            <input
+              type="text"
+              placeholder="Nombre"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              className="input-registro"
+            />
+          </div>
+          <div className="campo-registro">
+            <input
+              type="email"
+              placeholder="Correo electrónico"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="input-registro"
+            />
+          </div>
+          {!editandoId && (
+            <div className="campo-registro">
+              <input
+                type="password"
+                placeholder="Contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="input-registro"
+              />
+            </div>
+          )}
+          <div className="campo-registro">
+            <select
+              value={rol}
+              onChange={(e) => setRol(e.target.value)}
+              className="input-registro"
+            >
+              <option value="CLIENTE">Cliente</option>
+              <option value="ADMIN">Administrador</option>
+            </select>
+          </div>
+          <button type="submit" className="boton-catalogo">
+            {editandoId ? 'Actualizar' : 'Crear'}
+          </button>
+        </form>
+      )}
     </div>
   );
 }
