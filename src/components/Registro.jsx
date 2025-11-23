@@ -1,35 +1,39 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import cliente from '../api/cliente';
 import '../styles/style.css';
 
-const Registro = () => {
+const Registro = ({ setUsuario, setEsAdmin }) => {
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [nacimiento, setNacimiento] = useState('');
   const [codigo, setCodigo] = useState('');
-  const [resultado, setResultado] = useState('');
+  const [resultado, setResultado] = useState([]);
   const [erroresCampo, setErroresCampo] = useState({});
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errores = {};
     const nombreTrim = nombre.trim();
     const emailTrim = email.trim();
+    const passwordTrim = password.trim();
     const codigoTrim = codigo.trim().toUpperCase();
     const hoy = new Date();
     let edad = 0;
     let fechaNacimiento = null;
 
-    // Validaciones por campo
+    // Validaciones
     if (nombreTrim.length < 3) {
       errores.nombre = "El nombre debe tener al menos 3 caracteres.";
     }
-
     if (!emailTrim.includes("@") || !emailTrim.includes(".")) {
       errores.email = "El correo electrónico no es válido.";
     }
-
+    if (passwordTrim.length < 6) {
+      errores.password = "La contraseña debe tener al menos 6 caracteres.";
+    }
     if (nacimiento === "") {
       errores.nacimiento = "Debes ingresar tu fecha de nacimiento.";
     } else {
@@ -43,21 +47,19 @@ const Registro = () => {
         errores.nacimiento = "Debes tener al menos 18 años para registrarte.";
       }
     }
-
     if (codigoTrim !== "" && codigoTrim.length < 5) {
       errores.codigo = "El código de descuento debe tener al menos 5 caracteres.";
     }
 
-    // Mostrar errores si existen
     if (Object.keys(errores).length > 0) {
       setErroresCampo(errores);
-      setResultado('');
+      setResultado([]);
       return;
     }
 
-    setErroresCampo({}); // Limpiar errores
+    setErroresCampo({});
 
-    // Beneficios
+    // Beneficios visuales
     const beneficios = [];
     if (edad >= 50) {
       beneficios.push("Descuento del 50% en todos los productos por ser mayor de 50 años.");
@@ -69,19 +71,28 @@ const Registro = () => {
     if (emailTrim.includes("@duocuc.cl") && cumpleHoy) {
       beneficios.push("¡Torta gratis por tu cumpleaños para estudiantes Duoc!");
     }
+    setResultado(beneficios);
 
-    if (beneficios.length > 0) {
-      setResultado(
-        `<h3>Beneficios aplicados:</h3><ul>${beneficios.map(b => `<li>${b}</li>`).join('')}</ul>`
-      );
-    } else {
-      setResultado("No se aplicaron beneficios especiales.");
-    }
+    // Registro en backend
+    try {
+      const res = await cliente.post('/api/auth/register', {
+        nombre: nombreTrim,
+        email: emailTrim,
+        password: passwordTrim,
+        rol: "CLIENTE"
+      });
 
-    // Redirección simulada
-    setTimeout(() => {
+      const token = res.data.token;
+      localStorage.setItem('token', token);
+
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      setUsuario(payload.sub);
+      setEsAdmin(payload.rol === 'ADMIN');
+
       navigate('/catalogo');
-    }, 2000);
+    } catch (error) {
+      console.error('Error al registrar usuario', error);
+    }
   };
 
   return (
@@ -112,6 +123,17 @@ const Registro = () => {
 
         <div className="campo-registro">
           <input
+            type="password"
+            placeholder="Contraseña"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="input-registro"
+          />
+          {erroresCampo.password && <p className="error-text">{erroresCampo.password}</p>}
+        </div>
+
+        <div className="campo-registro">
+          <input
             type="date"
             value={nacimiento}
             onChange={(e) => setNacimiento(e.target.value)}
@@ -134,11 +156,16 @@ const Registro = () => {
         <button type="submit" className="boton-catalogo">Registrarse</button>
       </form>
 
-      <div
-        id="beneficios"
-        className="resultadoRegistro"
-        dangerouslySetInnerHTML={{ __html: resultado }}
-      />
+      {resultado.length > 0 && (
+        <div className="resultadoRegistro">
+          <h3>Beneficios aplicados:</h3>
+          <ul>
+            {resultado.map((b, i) => (
+              <li key={i}>{b}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="volver">
         <Link to="/login" className="link-volver">Volver al Login</Link>

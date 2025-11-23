@@ -31,9 +31,10 @@ const Navbar = ({ usuario, esAdmin, setUsuario, setEsAdmin }) => {
   const cerrarSesion = () => {
     setUsuario('');
     setEsAdmin(false);
+    localStorage.removeItem('token');   // 🔑 eliminar token JWT
     localStorage.removeItem('pedidos');
     localStorage.removeItem('envios');
-    navigate('/');
+    navigate('/login');                 // redirigir al login
   };
 
   return (
@@ -57,15 +58,18 @@ const Navbar = ({ usuario, esAdmin, setUsuario, setEsAdmin }) => {
             <span>Carrito</span>
           </Link>
 
-          <Link to="/login" className="ms-nav-link" style={{ '--i': 2 }}>
-            <FaUserLock className="ms-icon" style={{ color: '#c080a3' }} />
-            <span>Iniciar sesión</span>
-          </Link>
-
-          <Link to="/registro" className="ms-nav-link" style={{ '--i': 3 }}>
-            <FaUserPlus className="ms-icon" style={{ color: '#dca3b3' }} />
-            <span>Crear cuenta</span>
-          </Link>
+          {!usuario && (
+            <>
+              <Link to="/login" className="ms-nav-link" style={{ '--i': 2 }}>
+                <FaUserLock className="ms-icon" style={{ color: '#c080a3' }} />
+                <span>Iniciar sesión</span>
+              </Link>
+              <Link to="/registro" className="ms-nav-link" style={{ '--i': 3 }}>
+                <FaUserPlus className="ms-icon" style={{ color: '#dca3b3' }} />
+                <span>Crear cuenta</span>
+              </Link>
+            </>
+          )}
 
           <Link to="/promociones" className="ms-nav-link" style={{ '--i': 4 }}>
             <FaGift className="ms-icon" style={{ color: '#ffb6c1' }} />
@@ -96,10 +100,10 @@ const Navbar = ({ usuario, esAdmin, setUsuario, setEsAdmin }) => {
         {usuario && (
           <div className="ms-usuario">
             <span className="ms-saludo">Hola, <strong>{usuario}</strong></span>
-            <div className="cerrar-sesion" onClick={cerrarSesion}>
+            <button className="cerrar-sesion" onClick={cerrarSesion}>
               <FaSignOutAlt className="cerrar-icono" />
               <span>Cerrar sesión</span>
-            </div>
+            </button>
           </div>
         )}
       </div>

@@ -1,33 +1,39 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import cliente from '../api/cliente';
 
 const Login = ({ setUsuario, setEsAdmin }) => {
-  const [nombre, setNombre] = useState('');
+  const [correo, setCorreo] = useState('');
   const [clave, setClave] = useState('');
   const [error, setError] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validación personalizada
-    if (nombre.trim() === '' || clave.trim() === '') {
+    if (correo.trim() === '' || clave.trim() === '') {
       setError(true);
       return;
     }
 
-    setUsuario(nombre);
+    try {
+      const respuesta = await cliente.post('/api/auth/login', {
+        email: correo,
+        password: clave
+      });
 
-    if (nombre.toLowerCase() === 'admin' && clave === '12345') {
-      setEsAdmin(true);
+      const token = respuesta.data.token;
+      localStorage.setItem('token', token);
+
+      // Extraer datos del token
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      setUsuario(payload.sub);
+      setEsAdmin(payload.rol === 'ADMIN');
+
       setError(false);
-      navigate('/admin');
-    } else if (nombre.toLowerCase() !== 'admin') {
-      setEsAdmin(false);
-      setError(false);
-      navigate('/');
-    } else {
+      navigate(payload.rol === 'ADMIN' ? '/admin' : '/');
+    } catch (err) {
       setError(true);
     }
   };
@@ -38,11 +44,11 @@ const Login = ({ setUsuario, setEsAdmin }) => {
       <form onSubmit={handleSubmit} className="form-login">
         <div className="campo-login">
           <input
-            type="text"
+            type="email"
             className="input-login"
-            placeholder="Nombre de usuario"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
+            placeholder="Correo electrónico"
+            value={correo}
+            onChange={(e) => setCorreo(e.target.value)}
           />
         </div>
         <div className="campo-login">

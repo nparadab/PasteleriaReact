@@ -11,41 +11,48 @@ const Envios = ({ usuario }) => {
     'Entregado'
   ];
 
+  // Generar código único de envío
+  const generarCodigo = () => {
+    return 'ENV' + Math.floor(100000 + Math.random() * 900000);
+  };
+
   useEffect(() => {
     if (!usuario) return;
 
     const pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
 
-    const enviosGenerados = pedidos.map(pedido => ({
-      productos: pedido.productos.map(p => p.nombre).join(', '),
+    const enviosGenerados = pedidos.map((pedido) => ({
+      productos: pedido.productos.map((p) => p.nombre).join(', '),
       estadoPaso: 0,
       fechaPreferida: '',
-      numeroEnvio: pedido.numeroEnvio || generarCodigo()
+      numeroEnvio: pedido.numeroEnvio || generarCodigo(),
     }));
 
     setEnvios(enviosGenerados);
   }, [usuario]);
 
-  const generarCodigo = () => {
-    return 'ENV' + Math.floor(100000 + Math.random() * 900000);
-  };
-
+  // Actualizar estado y persistir en localStorage
   const actualizarEstado = (index) => {
-    setEnvios(prev =>
-      prev.map((envio, i) =>
+    setEnvios((prev) => {
+      const nuevosEnvios = prev.map((envio, i) =>
         i === index
           ? { ...envio, estadoPaso: (envio.estadoPaso + 1) % estados.length }
           : envio
-      )
-    );
+      );
+      localStorage.setItem('envios', JSON.stringify(nuevosEnvios));
+      return nuevosEnvios;
+    });
   };
 
+  // Guardar fecha preferida y persistir en localStorage
   const guardarFecha = (index, fecha) => {
-    setEnvios(prev =>
-      prev.map((envio, i) =>
+    setEnvios((prev) => {
+      const nuevosEnvios = prev.map((envio, i) =>
         i === index ? { ...envio, fechaPreferida: fecha } : envio
-      )
-    );
+      );
+      localStorage.setItem('envios', JSON.stringify(nuevosEnvios));
+      return nuevosEnvios;
+    });
   };
 
   if (!usuario) {
@@ -61,11 +68,14 @@ const Envios = ({ usuario }) => {
         <p>No tienes envíos registrados.</p>
       ) : (
         envios.map((envio, index) => (
-          <div key={index} className="envio-box">
+          <div key={envio.numeroEnvio} className="envio-box">
             <p><strong>Producto(s):</strong> {envio.productos}</p>
             <p><strong>N° de Envío:</strong> {envio.numeroEnvio}</p>
             <p><strong>Estado actual:</strong> {estados[envio.estadoPaso]}</p>
-            <button className="boton-catalogo" onClick={() => actualizarEstado(index)}>
+            <button
+              className="boton-catalogo"
+              onClick={() => actualizarEstado(index)}
+            >
               Actualizar Estado
             </button>
 

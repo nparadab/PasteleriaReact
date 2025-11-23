@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import '../styles/style.css';
 import {
   FaChartBar,
@@ -11,22 +12,33 @@ import {
   FaSignOutAlt
 } from 'react-icons/fa';
 
-const Admin = () => {
+const Admin = ({ usuario, setUsuario, setEsAdmin }) => {
+  const navigate = useNavigate();
+
+  const cerrarSesion = () => {
+    setUsuario('');
+    setEsAdmin(false);
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
+
   return (
     <div className="admin-container">
       <aside className="sidebar">
         <h2 className="logo">Panel Admin</h2>
         <nav>
           <ul>
-            <li><FaChartBar /> Dashboard</li>
-            <li><FaClipboardList /> Órdenes</li>
-            <li><FaBoxOpen /> Productos</li>
-            <li><FaTags /> Categorías</li>
-            <li><FaUsers /> Usuarios</li>
-            <li><FaChartBar /> Reportes</li>
-            <li><FaUserCircle /> Perfil</li>
-            <li><FaStore /> Tienda</li>
-            <li className="logout"><FaSignOutAlt /> Cerrar Sesión</li>
+            <li><Link to="/admin"><FaChartBar /> Dashboard</Link></li>
+            <li><Link to="/pedidos"><FaClipboardList /> Órdenes</Link></li>
+            <li><Link to="/productos"><FaBoxOpen /> Productos</Link></li>
+            <li><Link to="/categorias"><FaTags /> Categorías</Link></li>
+            <li><Link to="/usuarios"><FaUsers /> Usuarios</Link></li>
+            <li><Link to="/reportes"><FaChartBar /> Reportes</Link></li>
+            <li><Link to="/perfil"><FaUserCircle /> Perfil</Link></li>
+            <li><Link to="/"><FaStore /> Tienda</Link></li>
+            <li className="logout" onClick={cerrarSesion}>
+              <FaSignOutAlt /> Cerrar Sesión
+            </li>
           </ul>
         </nav>
       </aside>
@@ -52,7 +64,6 @@ const Admin = () => {
         </section>
 
         <section className="tiles">
-          <div className="tile"><FaChartBar /> Dashboard</div>
           <div className="tile"><FaClipboardList /> Órdenes</div>
           <div className="tile"><FaBoxOpen /> Productos</div>
           <div className="tile"><FaTags /> Categorías</div>

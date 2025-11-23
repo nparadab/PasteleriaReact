@@ -1,14 +1,24 @@
 import { useEffect, useState } from 'react';
-import React from 'react';
+import cliente from '../api/cliente';
 
-
-const Pedidos = ({ usuario }) => {
+const Pedidos = ({ usuario, esAdmin }) => {
   const [pedidos, setPedidos] = useState([]);
 
   useEffect(() => {
-    const pedidosGuardados = JSON.parse(localStorage.getItem('pedidos')) || [];
-    setPedidos(pedidosGuardados);
+    obtenerPedidos();
   }, []);
+
+  const obtenerPedidos = async () => {
+    try {
+      // Si es admin, obtiene todos los pedidos
+      // Si es cliente, obtiene solo los suyos
+      const endpoint = esAdmin ? '/api/pedidos' : `/api/pedidos/mis-pedidos`;
+      const res = await cliente.get(endpoint);
+      setPedidos(res.data);
+    } catch (error) {
+      console.error('Error al obtener pedidos', error);
+    }
+  };
 
   if (!usuario) {
     return <p>Debes iniciar sesión para ver tus pedidos.</p>;
@@ -16,14 +26,18 @@ const Pedidos = ({ usuario }) => {
 
   return (
     <div className="contenedor-pastel fade-in">
-      <h1 className="tituloPastel">Mis Pedidos</h1>
+      <h1 className="tituloPastel">
+        {esAdmin ? 'Gestión de Pedidos' : 'Mis Pedidos'}
+      </h1>
 
       {pedidos.length === 0 ? (
-        <p>No tienes pedidos registrados.</p>
+        <p>No hay pedidos registrados.</p>
       ) : (
-        pedidos.map((pedido, index) => (
-          <div key={index} className="pedido-box">
+        pedidos.map((pedido) => (
+          <div key={pedido.id} className="pedido-box">
             <p><strong>Número de envío:</strong> {pedido.numeroEnvio}</p>
+            <p><strong>Cliente:</strong> {pedido.cliente?.nombre || usuario}</p>
+            <p><strong>Estado:</strong> {pedido.estado}</p>
 
             <table className="tablaPedidos">
               <thead>
@@ -35,8 +49,8 @@ const Pedidos = ({ usuario }) => {
                 </tr>
               </thead>
               <tbody>
-                {pedido.productos.map((prod, i) => (
-                  <tr key={i}>
+                {pedido.productos.map((prod) => (
+                  <tr key={prod.id}>
                     <td>{prod.nombre}</td>
                     <td>{prod.cantidad}</td>
                     <td>${prod.precioUnitario}</td>
