@@ -116,50 +116,55 @@ export default function Usuarios() {
       </div>
 
       {mostrarFormulario && (
-        <form onSubmit={guardarUsuario} className="form-login" style={{ marginTop: '20px' }}>
-          <div className="campo-registro">
-            <input
-              type="text"
-              placeholder="Nombre"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              className="input-registro"
-            />
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <span className="modal-close" onClick={() => setMostrarFormulario(false)}>×</span>
+            <form onSubmit={guardarUsuario} className="form-login">
+              <div className="campo-registro">
+                <input
+                  type="text"
+                  placeholder="Nombre"
+                  value={nombre}
+                  onChange={(e) => setNombre(e.target.value)}
+                  className="input-registro"
+                />
+              </div>
+              <div className="campo-registro">
+                <input
+                  type="email"
+                  placeholder="Correo electrónico"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="input-registro"
+                />
+              </div>
+              {!editandoId && (
+                <div className="campo-registro">
+                  <input
+                    type="password"
+                    placeholder="Contraseña"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="input-registro"
+                  />
+                </div>
+              )}
+              <div className="campo-registro">
+                <select
+                  value={rol}
+                  onChange={(e) => setRol(e.target.value)}
+                  className="input-registro"
+                >
+                  <option value="CLIENTE">Cliente</option>
+                  <option value="ADMIN">Administrador</option>
+                </select>
+              </div>
+              <button type="submit" className="boton-catalogo">
+                {editandoId ? 'Actualizar' : 'Crear'}
+              </button>
+            </form>
           </div>
-          <div className="campo-registro">
-            <input
-              type="email"
-              placeholder="Correo electrónico"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="input-registro"
-            />
-          </div>
-          {!editandoId && (
-            <div className="campo-registro">
-              <input
-                type="password"
-                placeholder="Contraseña"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input-registro"
-              />
-            </div>
-          )}
-          <div className="campo-registro">
-            <select
-              value={rol}
-              onChange={(e) => setRol(e.target.value)}
-              className="input-registro"
-            >
-              <option value="CLIENTE">Cliente</option>
-              <option value="ADMIN">Administrador</option>
-            </select>
-          </div>
-          <button type="submit" className="boton-catalogo">
-            {editandoId ? 'Actualizar' : 'Crear'}
-          </button>
-        </form>
+        </div>
       )}
     </div>
   );
