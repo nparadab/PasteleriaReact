@@ -24,8 +24,19 @@ function App() {
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
+        console.log('Payload del token:', payload); // 👀 para depurar
+
         setUsuario(payload.sub);
-        setEsAdmin(payload.rol === 'ADMIN');
+
+        const rolUsuario =
+          payload.rol ||
+          payload.role ||
+          (payload.authorities && payload.authorities[0]);
+
+        if (rolUsuario) {
+          const rolNormalizado = rolUsuario.replace('ROLE_', '');
+          setEsAdmin(rolNormalizado === 'ADMIN');
+        }
       } catch (error) {
         console.error('Error al decodificar token', error);
         localStorage.removeItem('token');
@@ -50,46 +61,11 @@ function App() {
         <Route path="/promociones" element={<Promociones />} />
 
         {/* 🔒 rutas protegidas */}
-        <Route
-          path="/pedidos"
-          element={
-            <RutaPrivada>
-              <Pedidos usuario={usuario} />
-            </RutaPrivada>
-          }
-        />
-        <Route
-          path="/envios"
-          element={
-            <RutaPrivada>
-              <Envios usuario={usuario} />
-            </RutaPrivada>
-          }
-        />
-        <Route
-          path="/admin"
-          element={
-            <RutaPrivada rol="ADMIN">
-              <Admin usuario={usuario} esAdmin={esAdmin} setUsuario={setUsuario} setEsAdmin={setEsAdmin} />
-            </RutaPrivada>
-          }
-        />
-        <Route
-          path="/usuarios"
-          element={
-            <RutaPrivada rol="ADMIN">
-              <Usuarios />
-            </RutaPrivada>
-          }
-        />
-        <Route
-          path="/perfil"
-          element={
-            <RutaPrivada rol="ADMIN">
-              <Perfil usuario={usuario} />
-            </RutaPrivada>
-          }
-        />
+        <Route path="/pedidos" element={<RutaPrivada><Pedidos usuario={usuario} /></RutaPrivada>} />
+        <Route path="/envios" element={<RutaPrivada><Envios usuario={usuario} /></RutaPrivada>} />
+        <Route path="/admin" element={<RutaPrivada rol="ADMIN"><Admin usuario={usuario} esAdmin={esAdmin} setUsuario={setUsuario} setEsAdmin={setEsAdmin} /></RutaPrivada>} />
+        <Route path="/usuarios" element={<RutaPrivada rol="ADMIN"><Usuarios /></RutaPrivada>} />
+        <Route path="/perfil" element={<RutaPrivada rol="ADMIN"><Perfil usuario={usuario} /></RutaPrivada>} />
       </Routes>
     </>
   );

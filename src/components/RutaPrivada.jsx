@@ -7,13 +7,23 @@ export default function RutaPrivada({ children, rol }) {
     return <Navigate to="/login" />;
   }
 
-  // Decodificar el token para verificar rol
-  const payload = JSON.parse(atob(token.split('.')[1]));
-  const rolUsuario = payload.rol;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    // Puede venir como 'rol', 'role' o dentro de 'authorities'
+    let rolUsuario = payload.rol || payload.role || (payload.authorities && payload.authorities[0]);
 
-  if (rol && rolUsuario !== rol) {
-    return <Navigate to="/" />;
+    if (rolUsuario) {
+      // Normalizar: quitar prefijo ROLE_ si existe
+      rolUsuario = rolUsuario.replace('ROLE_', '');
+    }
+
+    if (rol && rolUsuario !== rol) {
+      return <Navigate to="/" />;
+    }
+
+    return children;
+  } catch (error) {
+    console.error('Error al decodificar token', error);
+    return <Navigate to="/login" />;
   }
-
-  return children;
 }

@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import '../styles/style.css';
 import {
   FaClipboardList,
-  FaBoxOpen,
   FaTags,
   FaUsers,
   FaChartBar,
@@ -19,12 +18,20 @@ const Admin = ({ usuario, setUsuario, setEsAdmin }) => {
     setUsuario('');
     setEsAdmin(false);
     localStorage.removeItem('token');
+    localStorage.removeItem('rol');
+    localStorage.removeItem('pedidos');
+    localStorage.removeItem('envios');
     navigate('/login');
   };
 
   return (
     <div className="admin-container">
       <main className="dashboard">
+        <h2 className="tituloPastel">Panel de Administración</h2>
+        {usuario && (
+          <p className="admin-saludo">Bienvenido, <strong>{usuario}</strong></p>
+        )}
+
         <section className="summary-images">
           <Link to="/pedidos" className="summary-item">
             <img src="/imagenes/compras.png" alt="Compras" className="summary-img" />
@@ -47,6 +54,7 @@ const Admin = ({ usuario, setUsuario, setEsAdmin }) => {
         <section className="tiles">
           <Link to="/pedidos" className="tile"><FaClipboardList /> Órdenes</Link>
           <Link to="/categorias" className="tile"><FaTags /> Categorías</Link>
+          <Link to="/usuarios" className="tile"><FaUsers /> Usuarios</Link>
           <Link to="/reportes" className="tile"><FaChartBar /> Reportes</Link>
           <Link to="/perfil" className="tile"><FaUserCircle /> Perfil</Link>
           <Link to="/" className="tile"><FaStore /> Tienda</Link>

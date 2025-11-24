@@ -23,17 +23,26 @@ const Login = ({ setUsuario, setEsAdmin }) => {
         password: clave
       });
 
-      const token = respuesta.data.token;
+      const { token, nombre } = respuesta.data;
       localStorage.setItem('token', token);
 
-      // Extraer datos del token
       const payload = JSON.parse(atob(token.split('.')[1]));
-      setUsuario(payload.sub);
-      setEsAdmin(payload.rol === 'ADMIN');
+      console.log('Payload del token:', payload); // 👀 para depurar
+
+      const rolUsuario =
+        payload.rol ||
+        payload.role ||
+        (payload.authorities && payload.authorities[0]);
+
+      const rolNormalizado = rolUsuario ? rolUsuario.replace('ROLE_', '') : '';
+
+      setUsuario(nombre || payload.sub || correo);
+      setEsAdmin(rolNormalizado === 'ADMIN');
 
       setError(false);
-      navigate(payload.rol === 'ADMIN' ? '/admin' : '/');
+      navigate(rolNormalizado === 'ADMIN' ? '/admin' : '/');
     } catch (err) {
+      console.error('Error en login:', err);
       setError(true);
     }
   };

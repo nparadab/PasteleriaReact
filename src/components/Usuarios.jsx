@@ -33,7 +33,7 @@ export default function Usuarios() {
           rol
         });
       } else {
-        await cliente.post('/api/auth/register', {
+        await cliente.post('/api/auth/usuarios', {
           nombre,
           email,
           password,
