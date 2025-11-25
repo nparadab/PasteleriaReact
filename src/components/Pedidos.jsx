@@ -1,3 +1,4 @@
+import React from 'react';               // ← IMPORT NECESARIO
 import { useEffect, useState } from 'react';
 import cliente from '../api/cliente';
 
@@ -10,8 +11,6 @@ const Pedidos = ({ usuario, esAdmin }) => {
 
   const obtenerPedidos = async () => {
     try {
-      // Si es admin, obtiene todos los pedidos
-      // Si es cliente, obtiene solo los suyos
       const endpoint = esAdmin ? '/api/pedidos' : `/api/pedidos/mis-pedidos`;
       const res = await cliente.get(endpoint);
       setPedidos(res.data);
