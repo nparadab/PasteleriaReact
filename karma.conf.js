@@ -1,3 +1,5 @@
+const webpack = require('webpack');
+
 module.exports = function(config) {
   config.set({
     // Frameworks de prueba
@@ -37,7 +39,15 @@ module.exports = function(config) {
             use: ['style-loader', 'css-loader'] // Permite importar estilos en componentes
           }
         ]
-      }
+      },
+      plugins: [
+        // ✅ Define process.env para que no explote en pruebas
+        new webpack.DefinePlugin({
+          'process.env': {
+            REACT_APP_API_URL: JSON.stringify('http://localhost:8080/api')
+          }
+        })
+      ]
     },
 
     // Navegador para ejecutar las pruebas
