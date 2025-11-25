@@ -9,7 +9,7 @@ describe('Pedidos', () => {
 
   it('muestra mensaje si no hay pedidos', () => {
     render(<Pedidos usuario="nicolas@example.com" />);
-    const mensaje = screen.getByText(/No tienes pedidos registrados/i);
+    const mensaje = screen.getByText(/No hay pedidos registrados/i);
     expect(mensaje).not.toBeNull(); // ← compatible con Jasmine
   });
 });
