@@ -16,7 +16,7 @@ export default function Usuarios() {
 
   const obtenerUsuarios = async () => {
     try {
-      const res = await cliente.get('/api/auth/usuarios');
+      const res = await cliente.get('/usuarios');   // RUTA CORRECTA
       setUsuarios(res.data);
     } catch (error) {
       console.error('Error al obtener usuarios', error);
@@ -27,25 +27,28 @@ export default function Usuarios() {
     e.preventDefault();
     try {
       if (editandoId) {
-        await cliente.put(`/api/auth/usuarios/${editandoId}`, {
+        await cliente.put(`/usuarios/${editandoId}`, {
           nombre,
           email,
           rol
         });
       } else {
-        await cliente.post('/api/auth/usuarios', {
+        await cliente.post('/usuarios', {
           nombre,
           email,
           password,
           rol
         });
       }
+
+      // limpiar formulario
       setNombre('');
       setEmail('');
       setPassword('');
       setRol('CLIENTE');
       setEditandoId(null);
       setMostrarFormulario(false);
+
       obtenerUsuarios();
     } catch (error) {
       console.error('Error al guardar usuario', error);
@@ -62,7 +65,7 @@ export default function Usuarios() {
 
   const eliminarUsuario = async (id) => {
     try {
-      await cliente.delete(`/api/auth/usuarios/${id}`);
+      await cliente.delete(`/usuarios/${id}`);
       obtenerUsuarios();
     } catch (error) {
       console.error('Error al eliminar usuario', error);
@@ -157,6 +160,8 @@ export default function Usuarios() {
                 >
                   <option value="CLIENTE">Cliente</option>
                   <option value="ADMIN">Administrador</option>
+                  <option value="VENDEDOR">Vendedor</option>
+                  <option value="PASTELERO">Pastelero</option>
                 </select>
               </div>
               <button type="submit" className="boton-catalogo">

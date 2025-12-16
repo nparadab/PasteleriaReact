@@ -1,33 +1,30 @@
 import axios from 'axios';
 
 const cliente = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'https://milsabores-api.onrender.com',
+  baseURL: 'https://milsabores-api.onrender.com/api',
+  headers: {
+    'Content-Type': 'application/json'
+  }
 });
 
-// ✅ Interceptor para enviar token en todas las rutas protegidas
+// Interceptor para token
 cliente.interceptors.request.use(config => {
   const url = (config.url || '').toLowerCase();
 
-  // Detectar rutas públicas (login y register)
+  // Rutas públicas reales del backend
   const esRutaPublica =
-    url.includes('/login') || url.includes('/register');
+    url.includes('/auth/login') ||
+    url.includes('/auth/register') ||
+    url.includes('/auth/recuperar');
 
   if (!esRutaPublica) {
     const token = localStorage.getItem('token');
     if (token) {
-      config.headers = {
-        ...config.headers,
-        Authorization: `Bearer ${token}`,
-      };
-      console.log('🔐 Enviando token en header:', config.headers.Authorization); // 👀 para confirmar
-    } else {
-      console.warn('⚠️ No hay token en localStorage');
+      config.headers.Authorization = `Bearer ${token}`;
     }
   }
 
   return config;
-}, error => {
-  return Promise.reject(error);
-});
+}, error => Promise.reject(error));
 
 export default cliente;

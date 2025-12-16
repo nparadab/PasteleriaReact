@@ -75,21 +75,15 @@ const Registro = ({ setUsuario, setEsAdmin }) => {
 
     // Registro en backend
     try {
-      const res = await cliente.post('/api/auth/register', {
+      await cliente.post('/auth/register', {
         nombre: nombreTrim,
         email: emailTrim,
         password: passwordTrim,
         rol: "CLIENTE"
       });
 
-      const token = res.data.token;
-      localStorage.setItem('token', token);
-
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      setUsuario(payload.sub);
-      setEsAdmin(payload.rol === 'ADMIN');
-
-      navigate('/catalogo');
+      // Después de registrar, redirigir al login
+      navigate('/login');
     } catch (error) {
       console.error('Error al registrar usuario', error);
     }

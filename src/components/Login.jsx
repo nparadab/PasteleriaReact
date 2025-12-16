@@ -18,12 +18,12 @@ const Login = ({ setUsuario, setEsAdmin }) => {
     }
 
     try {
-      const respuesta = await cliente.post('/api/auth/login', {
+      const respuesta = await cliente.post('/auth/login', {
         email: correo,
         password: clave
       });
 
-      const { token, nombre } = respuesta.data;
+      const { token } = respuesta.data;
       localStorage.setItem('token', token);
 
       const payload = JSON.parse(atob(token.split('.')[1]));
@@ -36,7 +36,7 @@ const Login = ({ setUsuario, setEsAdmin }) => {
 
       const rolNormalizado = rolUsuario ? rolUsuario.replace('ROLE_', '') : '';
 
-      setUsuario(nombre || payload.sub || correo);
+      setUsuario(payload.sub || correo);
       setEsAdmin(rolNormalizado === 'ADMIN');
 
       setError(false);
